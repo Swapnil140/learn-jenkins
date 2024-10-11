@@ -187,8 +187,6 @@ router.post('/', async function (req, res, next) {
 			"data": cardCreatedPayment,
 		});
     } catch (error) {
-        console.log("=>>>>>>>>>>.. errrrrrrrrrrrrrrr",error );
-        
         res.status(error.statusCode).json({
             "message": "Error while fetching payment list",
             "status": error.statusCode,
