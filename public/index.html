@@ -1,0 +1,133 @@
+<html>
+
+<head>
+  <title>Demo Project</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/reference/sdks/web/static/styles/code-preview.css" preload>
+  <script type="text/javascript" src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
+  <!-- import ajax  -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>  
+</head>
+
+<body>
+  <h1>Square Payment Demo</h1>
+  <div id="payment-form">
+    <div id="payment-status-container"></div>
+    <div id="card-container"></div>
+    <input type="text"  id="token" placeholder="Generated Card Token" disabled><br> <br>
+    <input type="number"  id="amount" placeholder="Amount"><br> <br>
+    <input type="number" class="token-number"  id="amount" placeholder="How many tokens"><br> <br>
+    <button id="card-button" type="button">Pay</button> <br> <br>
+    <button id="generate-token" type="button">Generate Token</button> <br> <br>
+    <textarea id="payment-response" placeholder="Payment Response" rows="100" cols="100"></textarea><br> <br>
+  </div>
+  <script type="module">
+    // Square application-id and location 
+    const payments = Square.payments("sandbox-sq0idb-SLk3iH6v8L5yRJJf63H8XQ", "L3QG0E6KQM1RT"); // mario app 1
+    // const payments = Square.payments("sandbox-sq0idb-ISEwTriZ-1nhzC1765WsLQ", "L3QG0E6KQM1RT"); // mario app 2
+    const card = await payments.card();
+    await card.attach('#card-container');
+    const cardButton = document.getElementById('card-button');
+
+    $(document).ready(function(){
+        $("#generate-token").on("click",async function(){
+            let tokenNumber = 1;            
+            if($(".token-number").val()){
+                tokenNumber = $(".token-number").val()
+            }
+            const tokens = [];
+            
+            for (let index = 0; index < tokenNumber; index++) {
+                console.log("=>>>> index >..",index);
+                const result = await card.tokenize();
+                tokens.push(result.token)
+            }
+            console.log("=.>>>>JSON.stringify(tokens) >>>>>.",JSON.stringify(tokens))
+            $("#token").val(`${tokenNumber} token generated.`);
+            $("#payment-response").val(JSON.stringify(tokens,null,3));
+        });
+        $("#card-button").on("click",async function (params) {
+            try {
+                if(!$("#amount").val()){
+                    alert("Please enter amount !!")
+                }
+                // Generate token using card details
+                const result = await card.tokenize();    
+                if(result.status === "OK") {
+                    console.log(`Payment token is ${result.token}`);
+                    $("#token").val(result.token); 
+                    const paymentBody = {
+                        "sourceId": result.token,
+                        "amount": $("#amount").val(),
+                        // "customerId": "X56P964BH3B73SKKYECMNBGE20",
+                        "autocomplete": true
+                    };
+                    console.log("=>>>>>>>>> paymentBody >>>>>>>.",paymentBody);
+                    $.ajax({
+                        "type" :"POST",
+                        "url" : "http://localhost:3030/payments/create",
+                        "data" : paymentBody,
+                        "success" : function(response){
+                            alert("Payment Successful !!");
+                            $("#payment-response").val(JSON.stringify(response,null,3));
+                            console.log("=>>>>>>>>> Response >>>>>>>.",response);
+                        },
+                        "error" : function(errResponse){
+                            alert("Payment Error !!");
+                            console.log("=>>>>>. errResponse >>>>",errResponse);
+                            $("#payment-response").val(JSON.stringify(errResponse,null,3));
+                        }
+                    });
+                }else{
+                    alert("Error in payment!!");
+                    console.log("=>>>>>.result >>>>..",result);
+                    $("#payment-response").val(JSON.stringify(result,null,3));
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Error in payment large !!");
+                // statusContainer.innerHTML = "Payment Failed";
+            }
+        })
+        // $("#generate-token").on("click",async function(){
+        //     const result = await card.tokenize();
+        //     $("#token").val(result.token);
+        //     $("#payment-response").val(JSON.stringify(result,null,3));
+        // })
+    });
+
+    // cardButton.addEventListener('click', async () => {
+    // //   const statusContainer = document.getElementById('payment-status-container');
+
+    //   try {
+    //     const result = await card.tokenize();
+    //     if (result.status === 'OK') {
+    //       console.log(`Payment token is ${result.token}`);
+    //       const paymentBody = {
+    //         "sourceId":result.token,
+    //         "amount": 11, // Am
+    //         // "customerId": "X56P964BH3B73SKKYECMNBGE20",
+    //         "autocomplete": true
+    //       }
+    //     //   statusContainer.innerHTML = "Token Generated in browser's console";
+    //     } else {
+    //       let errorMessage = `Tokenization failed with status: ${result.status}`;
+    //       if (result.errors) {
+    //         errorMessage += ` and errors: ${JSON.stringify(
+    //           result.errors
+    //         )}`;
+    //       }
+
+    //       throw new Error(errorMessage);
+    //     }
+    //   } catch (e) {
+    //     console.error(e);
+    //     statusContainer.innerHTML = "Payment Failed";
+    //   }
+    // });
+  </script>
+</body>
+
+</body>
+
+</html>
