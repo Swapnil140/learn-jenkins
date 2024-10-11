@@ -13,13 +13,6 @@ const paymentRouter = require('./routes/payments');
 
 const app = express();
 
-const a = ["a","b","c","d"];
-for (const key in Object(a)) {
-	if (Object.prototype.hasOwnProperty.call(Object(a), key)) {
-		console.log("=>>>>>>>>>>.",key)
-	}
-}
-
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

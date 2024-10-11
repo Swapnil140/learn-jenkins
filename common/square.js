@@ -24,7 +24,6 @@ const { locationsApi, customersApi, cardsApi, paymentsApi, refundsApi} = client;
 const createPayment = async function(paymentDetails) {	
 	try {
 		const uuid = uuidV4();
-		console.log(">>>>>>>>>>>>. uuid while create payment as idempotencyKey >>>>>>.",uuid);
 		const createPaymentResponse = await paymentsApi.createPayment({
 			"sourceId": paymentDetails.sourceId,
 			"idempotencyKey": uuid,
@@ -133,10 +132,6 @@ const createCustomer = async function(customerDetails) {
 	try {
 		const uuid = uuidV4();
 		const response = await customersApi.createCustomer({ "idempotencyKey": uuid, ...customerDetails });
-		console.log("=.>>>>>> response >>>>>>>.");
-		console.log(response);
-		console.log("=.>>>>>> response >>>>>>>.");
-		
 		delete response.result.customer.version;
 		return response.result.customer;		
 	} catch (error) {

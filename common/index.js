@@ -136,7 +136,6 @@ const normalizeBigInt = function (data, normalizeType) {
  */
 const preparePaginationParameters = function (params, postDataPagination) {
 	try {
-		console.log("=>>>>. un-prepared params >>>>>>.",params);
 		for (const key of params) {
 			if (postDataPagination.hasOwnProperty(key) && ( postDataPagination[key] !== "" && postDataPagination[key] !== null && postDataPagination[key] !== undefined)) {
 				params[params.indexOf(key)] = postDataPagination[key];
@@ -144,7 +143,6 @@ const preparePaginationParameters = function (params, postDataPagination) {
 				params[params.indexOf(key)] = undefined;
 			}
 		}
-		console.log("=>>>>. prepared params >>>>>>.",params);
 		return params;
 	} catch (error) {
 		throw error;
